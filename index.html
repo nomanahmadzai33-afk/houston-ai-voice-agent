@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tolo Kabab House AI Receptionist</title>
+    <meta
+      name="description"
+      content="Restaurant AI receptionist concept for Tolo Kabab House with call answering, reservations, FAQs, and staff handoff rules."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="backdrop"></div>
+    <header class="site-header">
+      <div class="brand-block">
+        <p class="eyebrow">TalkServe AI concept</p>
+        <h1>Tolo Kabab House AI Receptionist</h1>
+        <p class="lede">
+          A restaurant-ready phone agent that answers calls, handles table
+          requests, captures reservation details, and escalates to staff only
+          when needed.
+        </p>
+      </div>
+      <div class="hero-card">
+        <p class="card-label">Agent profile</p>
+        <h2>Warm, fast, and built for busy dinner service</h2>
+        <ul class="hero-points">
+          <li>Answers every incoming call, day or night</li>
+          <li>Collects reservation details in under 90 seconds</li>
+          <li>Handles menu, hours, address, and parking questions</li>
+          <li>Transfers VIP, complaint, or exception cases to staff</li>
+        </ul>
+      </div>
+    </header>
+
+    <main>
+      <section class="grid-section">
+        <article class="panel">
+          <p class="section-kicker">What it does</p>
+          <h3>Core call flows for a restaurant</h3>
+          <div class="feature-grid">
+            <div class="feature">
+              <span class="feature-index">01</span>
+              <h4>Reservation intake</h4>
+              <p>
+                Captures date, time, party size, guest name, phone number, and
+                special requests.
+              </p>
+            </div>
+            <div class="feature">
+              <span class="feature-index">02</span>
+              <h4>General questions</h4>
+              <p>
+                Answers location, hours, parking, wait time policy, and dining
+                experience questions.
+              </p>
+            </div>
+            <div class="feature">
+              <span class="feature-index">03</span>
+              <h4>Large party routing</h4>
+              <p>
+                Flags groups, catering, and event requests for human follow-up
+                instead of promising unavailable bookings.
+              </p>
+            </div>
+            <div class="feature">
+              <span class="feature-index">04</span>
+              <h4>Safe escalation</h4>
+              <p>
+                Transfers allergy, complaint, payment dispute, or urgent
+                requests to staff with a short summary.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel accent-panel">
+          <p class="section-kicker">How it sounds</p>
+          <h3>Sample opening</h3>
+          <div class="conversation">
+            <p>
+              <strong>Agent:</strong> Thank you for calling Tolo Kabab House.
+              This is your reservation assistant. How can I help you today?
+            </p>
+            <p>
+              <strong>Caller:</strong> I need a table for four tomorrow night.
+            </p>
+            <p>
+              <strong>Agent:</strong> I can help with that. What time would you
+              like to come in, and may I have the name for the reservation?
+            </p>
+            <p>
+              <strong>Caller:</strong> 7:30 under Ahmad.
+            </p>
+            <p>
+              <strong>Agent:</strong> Perfect. I have a table request for four
+              guests tomorrow at 7:30 PM under Ahmad. What is the best phone
+              number for confirmation?
+            </p>
+          </div>
+        </article>
+      </section>
+
+      <section class="timeline-section">
+        <div class="panel">
+          <p class="section-kicker">Launch path</p>
+          <h3>What your friend needs to connect next</h3>
+          <div class="timeline">
+            <div class="timeline-item">
+              <span>1</span>
+              <p>Pick the voice stack: `Twilio + OpenAI`, `Vapi`, or `Retell`.</p>
+            </div>
+            <div class="timeline-item">
+              <span>2</span>
+              <p>
+                Connect reservation storage: `Google Sheets`, `Airtable`, or
+                the restaurant’s booking system.
+              </p>
+            </div>
+            <div class="timeline-item">
+              <span>3</span>
+              <p>
+                Replace placeholder business facts with real hours, menu FAQ,
+                booking limits, and transfer number.
+              </p>
+            </div>
+            <div class="timeline-item">
+              <span>4</span>
+              <p>
+                Test missed-call recovery, noisy callers, no-availability
+                handling, and SMS confirmations.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid-section">
+        <article class="panel">
+          <p class="section-kicker">Business rules</p>
+          <h3>Guardrails that matter in production</h3>
+          <ul class="rules-list">
+            <li>Never confirm a reservation unless the booking tool says it is available.</li>
+            <li>Repeat the booking summary before ending the call.</li>
+            <li>Do not guess about allergens, halal status, or ingredients.</li>
+            <li>Escalate complaints and payment issues to a human immediately.</li>
+            <li>Capture callback details anytime the call quality is poor.</li>
+          </ul>
+        </article>
+
+        <article class="panel stat-panel">
+          <p class="section-kicker">Restaurant fit</p>
+          <h3>Why this is valuable</h3>
+          <div class="stats">
+            <div>
+              <strong>24/7</strong>
+              <span>Call coverage</span>
+            </div>
+            <div>
+              <strong>&lt; 90s</strong>
+              <span>Reservation intake target</span>
+            </div>
+            <div>
+              <strong>1 agent</strong>
+              <span>Handles peak missed-call overflow</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>
+        Files included in this starter:
+        <code>agent-config/tolo-kabab-house.json</code> and
+        <code>README.md</code>
+      </p>
+    </footer>
+  </body>
+</html>
