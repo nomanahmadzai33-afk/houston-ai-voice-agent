@@ -34,7 +34,6 @@ async def initialize_openai_session(openai_ws) -> None:
     session_update = {
         "type": "session.update",
         "session": {
-            "type": "realtime",
             "instructions": build_system_prompt(),
             "output_modalities": ["audio"],
             "audio": {
