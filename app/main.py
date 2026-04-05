@@ -16,7 +16,6 @@ from app.tools import TOOLS, run_tool
 
 app = FastAPI(title="Tolo Kabab House AI Receptionist")
 
-
 OPENAI_REALTIME_URL = "wss://api.openai.com/v1/realtime"
 
 
@@ -35,28 +34,18 @@ async def initialize_openai_session(openai_ws) -> None:
         "type": "session.update",
         "session": {
             "instructions": build_system_prompt(),
-            "output_modalities": ["audio"],
-            "audio": {
-                "input": {
-                    "format": {"type": "audio/pcmu"},
-                    "turn_detection": {
-                        "type": "server_vad",
-                        "threshold": 0.5,
-                        "prefix_padding_ms": 300,
-                        "silence_duration_ms": 500,
-                        "create_response": True,
-                        "interrupt_response": True
-                    }
-                },
-                "output": {
-                    "format": {"type": "audio/pcmu"},
-                    "voice": settings.openai_voice,
-                    "speed": 1
-                }
+            "voice": settings.openai_voice,
+            "input_audio_format": "g711_ulaw",
+            "output_audio_format": "g711_ulaw",
+            "turn_detection": {
+                "type": "server_vad",
+                "threshold": 0.5,
+                "prefix_padding_ms": 300,
+                "silence_duration_ms": 500
             },
             "tools": TOOLS,
             "tool_choice": "auto",
-            "max_output_tokens": 512
+            "max_response_output_tokens": 512
         }
     }
     await openai_ws.send(json.dumps(session_update))
@@ -140,23 +129,16 @@ async def media_stream(websocket: WebSocket) -> None:
                 event = json.loads(raw_event)
                 event_type = event.get("type")
 
-                if event_type == "response.output_audio.delta" and stream_sid:
+                if event_type == "response.audio.delta" and stream_sid:
                     await websocket.send_json(
                         {
                             "event": "media",
                             "streamSid": stream_sid,
-                            "media": {
-                                "payload": event["delta"]
-                            },
+                            "media": {"payload": event["delta"]},
                         }
                     )
                 elif event_type == "input_audio_buffer.speech_started" and stream_sid:
-                    await websocket.send_json(
-                        {
-                            "event": "clear",
-                            "streamSid": stream_sid
-                        }
-                    )
+                    await websocket.send_json({"event": "clear", "streamSid": stream_sid})
                 elif event_type == "response.function_call_arguments.done":
                     tool_name = event["name"]
                     tool_output = run_tool(tool_name, event["arguments"])
@@ -178,10 +160,7 @@ async def media_stream(websocket: WebSocket) -> None:
 
         receiver = asyncio.create_task(receive_from_twilio())
         sender = asyncio.create_task(send_to_twilio())
-        done, pending = await asyncio.wait(
-            {receiver, sender},
-            return_when=asyncio.FIRST_COMPLETED
-        )
+        done, pending = await asyncio.wait({receiver, sender}, return_when=asyncio.FIRST_COMPLETED)
         for task in pending:
             task.cancel()
             with suppress(asyncio.CancelledError):
@@ -198,6 +177,4 @@ async def unhandled_exception_handler(_: Request, exc: Exception) -> JSONRespons
 
 @app.get("/")
 async def root() -> PlainTextResponse:
-    return PlainTextResponse(
-        "Tolo Kabab House AI receptionist backend is running. Use /incoming-call for Twilio and /debug/store for local records."
-    )
+    return PlainTextResponse("Tolo Kabab House AI receptionist is running.")
