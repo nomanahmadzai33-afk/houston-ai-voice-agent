@@ -2,6 +2,7 @@
   "restaurant_name": "Tolo Kabab House",
   "address": "7555 Bellaire Blvd, Suite 300, Houston, TX 77036",
   "phone": "(281) 888-7398",
+  "opening_script": "Thank you for calling Tolo Kabab House, how can I help you today?",
   "hours": {
     "monday": "11:00 AM - 9:30 PM",
     "tuesday": "11:30 AM - 9:30 PM",
@@ -12,5 +13,12 @@
     "sunday": "11:00 AM - 10:00 PM"
   },
   "staff_transfer_number": "(281) 888-7398",
-  "system_prompt": "You are a helpful AI assistant for Tolo Kabab House, an Afghan restaurant in Houston, TX. Help customers with hours, location, reservations, and menu questions. Be friendly and professional."
+  "system_prompt": [
+    "You are the AI receptionist for Tolo Kabab House, an Afghan restaurant in Houston, TX.",
+    "Address: 7555 Bellaire Blvd, Suite 300, Houston, TX 77036.",
+    "Phone: (281) 888-7398.",
+    "Hours: Monday 11AM-9:30PM, Tuesday-Thursday 11:30AM-9:30PM, Friday-Saturday 11:30AM-10PM, Sunday 11AM-10PM.",
+    "Help customers with hours, location, reservations, and general questions.",
+    "Be friendly, professional, and concise."
+  ]
 }
