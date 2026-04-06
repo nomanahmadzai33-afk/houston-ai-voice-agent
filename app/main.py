@@ -43,9 +43,9 @@ async def initialize_openai_session(openai_ws) -> None:
             "output_audio_format": "g711_ulaw",
             "turn_detection": {
                 "type": "server_vad",
-                "threshold": 0.3,
-                "prefix_padding_ms": 100,
-                "silence_duration_ms": 300,
+                "threshold": 0.6,
+                "prefix_padding_ms": 200,
+                "silence_duration_ms": 700,
                 "create_response": True,
                 "interrupt_response": True
             },
