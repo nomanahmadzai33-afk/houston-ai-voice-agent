@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import random
 from contextlib import suppress
 
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
@@ -17,6 +18,9 @@ from app.tools import TOOLS, run_tool
 app = FastAPI(title="Tolo Kabab House AI Receptionist")
 
 OPENAI_REALTIME_URL = "wss://api.openai.com/v1/realtime"
+
+# Human-like filler responses when user is speaking
+FILLERS = ["Mhmm.", "I see.", "Got it.", "Sure.", "Of course.", "Absolutely."]
 
 
 def build_twiml_stream_response() -> str:
@@ -39,9 +43,11 @@ async def initialize_openai_session(openai_ws) -> None:
             "output_audio_format": "g711_ulaw",
             "turn_detection": {
                 "type": "server_vad",
-                "threshold": 0.5,
-                "prefix_padding_ms": 300,
-                "silence_duration_ms": 500
+                "threshold": 0.3,
+                "prefix_padding_ms": 100,
+                "silence_duration_ms": 300,
+                "create_response": True,
+                "interrupt_response": True
             },
             "tools": TOOLS,
             "tool_choice": "auto",
@@ -50,14 +56,12 @@ async def initialize_openai_session(openai_ws) -> None:
     }
     await openai_ws.send(json.dumps(session_update))
     await openai_ws.send(
-        json.dumps(
-            {
-                "type": "response.create",
-                "response": {
-                    "instructions": build_greeting_instruction()
-                }
+        json.dumps({
+            "type": "response.create",
+            "response": {
+                "instructions": build_greeting_instruction()
             }
-        )
+        })
     )
 
 
@@ -89,6 +93,7 @@ async def media_stream(websocket: WebSocket) -> None:
         return
 
     stream_sid = None
+    user_speaking = False
 
     headers = {
         "Authorization": f"Bearer {settings.openai_api_key}",
@@ -100,7 +105,7 @@ async def media_stream(websocket: WebSocket) -> None:
         await initialize_openai_session(openai_ws)
 
         async def receive_from_twilio() -> None:
-            nonlocal stream_sid
+            nonlocal stream_sid, user_speaking
             try:
                 while True:
                     message_text = await websocket.receive_text()
@@ -111,12 +116,10 @@ async def media_stream(websocket: WebSocket) -> None:
                         stream_sid = payload["start"]["streamSid"]
                     elif event_type == "media":
                         await openai_ws.send(
-                            json.dumps(
-                                {
-                                    "type": "input_audio_buffer.append",
-                                    "audio": payload["media"]["payload"]
-                                }
-                            )
+                            json.dumps({
+                                "type": "input_audio_buffer.append",
+                                "audio": payload["media"]["payload"]
+                            })
                         )
                     elif event_type == "stop":
                         break
@@ -124,43 +127,54 @@ async def media_stream(websocket: WebSocket) -> None:
                 pass
 
         async def send_to_twilio() -> None:
-            nonlocal stream_sid
+            nonlocal stream_sid, user_speaking
             async for raw_event in openai_ws:
                 event = json.loads(raw_event)
                 event_type = event.get("type")
 
                 if event_type == "response.audio.delta" and stream_sid:
-                    await websocket.send_json(
-                        {
-                            "event": "media",
-                            "streamSid": stream_sid,
-                            "media": {"payload": event["delta"]},
-                        }
-                    )
-                elif event_type == "input_audio_buffer.speech_started" and stream_sid:
-                    await websocket.send_json({"event": "clear", "streamSid": stream_sid})
+                    await websocket.send_json({
+                        "event": "media",
+                        "streamSid": stream_sid,
+                        "media": {"payload": event["delta"]},
+                    })
+
+                elif event_type == "input_audio_buffer.speech_started":
+                    user_speaking = True
+                    if stream_sid:
+                        # Clear AI audio immediately when user starts speaking
+                        await websocket.send_json({
+                            "event": "clear",
+                            "streamSid": stream_sid
+                        })
+
+                elif event_type == "input_audio_buffer.speech_stopped":
+                    user_speaking = False
+
                 elif event_type == "response.function_call_arguments.done":
                     tool_name = event["name"]
                     tool_output = run_tool(tool_name, event["arguments"])
                     await openai_ws.send(
-                        json.dumps(
-                            {
-                                "type": "conversation.item.create",
-                                "item": {
-                                    "type": "function_call_output",
-                                    "call_id": event["call_id"],
-                                    "output": tool_output
-                                }
+                        json.dumps({
+                            "type": "conversation.item.create",
+                            "item": {
+                                "type": "function_call_output",
+                                "call_id": event["call_id"],
+                                "output": tool_output
                             }
-                        )
+                        })
                     )
                     await openai_ws.send(json.dumps({"type": "response.create"}))
+
                 elif event_type == "error":
                     print("OpenAI Realtime error:", event)
 
         receiver = asyncio.create_task(receive_from_twilio())
         sender = asyncio.create_task(send_to_twilio())
-        done, pending = await asyncio.wait({receiver, sender}, return_when=asyncio.FIRST_COMPLETED)
+        done, pending = await asyncio.wait(
+            {receiver, sender},
+            return_when=asyncio.FIRST_COMPLETED
+        )
         for task in pending:
             task.cancel()
             with suppress(asyncio.CancelledError):
