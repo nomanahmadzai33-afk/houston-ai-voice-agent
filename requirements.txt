@@ -2,3 +2,6 @@ fastapi==0.116.1
 uvicorn[standard]==0.35.0
 websockets==15.0.1
 python-dotenv==1.1.1
+google-api-python-client==2.114.0
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.0
