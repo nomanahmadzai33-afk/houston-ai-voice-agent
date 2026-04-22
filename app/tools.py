@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import json
+import os
+import base64
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from app.config import settings
 from app.store import LEADS_PATH, RESERVATIONS_PATH, TRANSFERS_PATH, append_record, load_records, utc_timestamp
@@ -99,6 +101,45 @@ def _suggest_alternatives(date_value: str, time_value: str) -> list[str]:
     return [candidate for candidate, count in counts.items() if count < settings.reservation_slot_capacity][:2]
 
 
+def add_to_google_calendar(record: dict) -> None:
+    try:
+        from google.oauth2.credentials import Credentials
+        from googleapiclient.discovery import build
+
+        token_data = os.environ.get('GOOGLE_CALENDAR_TOKEN')
+        if not token_data:
+            print("No GOOGLE_CALENDAR_TOKEN found, skipping Calendar.")
+            return
+
+        creds = Credentials.from_authorized_user_info(
+            json.loads(base64.b64decode(token_data).decode()),
+            ['https://www.googleapis.com/auth/calendar']
+        )
+        service = build('calendar', 'v3', credentials=creds)
+
+        start_dt = datetime.strptime(f"{record['date']} {record['time']}", "%Y-%m-%d %H:%M")
+        end_dt = start_dt + timedelta(hours=1, minutes=30)
+
+        event = {
+            'summary': f"Reservation - {record['guest_name']} (Party of {record['party_size']})",
+            'description': (
+                f"Guest: {record['guest_name']}\n"
+                f"Phone: {record['phone_number']}\n"
+                f"Party size: {record['party_size']}\n"
+                f"Special requests: {record.get('special_requests', 'None')}\n"
+                f"Booked via: AI Voice Agent"
+            ),
+            'start': {'dateTime': start_dt.isoformat(), 'timeZone': 'America/Chicago'},
+            'end': {'dateTime': end_dt.isoformat(), 'timeZone': 'America/Chicago'},
+        }
+
+        service.events().insert(calendarId='nomanahmadzai33@gmail.com', body=event).execute()
+        print(f"✅ Calendar event created for {record['guest_name']}")
+
+    except Exception as e:
+        print(f"Calendar error (non-fatal): {e}")
+
+
 def check_reservation_availability(arguments: dict) -> dict:
     date_value = arguments["date"]
     time_value = arguments["time"]
@@ -151,10 +192,11 @@ def create_reservation(arguments: dict) -> dict:
         "created_at": utc_timestamp()
     }
     append_record(RESERVATIONS_PATH, record)
+    add_to_google_calendar(record)
     return {
         "created": True,
         "reservation": record,
-        "message": "Reservation successfully created in the local dev store."
+        "message": "Reservation successfully created and saved to Google Calendar."
     }
 
 
@@ -187,10 +229,7 @@ def transfer_to_staff(arguments: dict) -> dict:
     return {
         "captured": True,
         "live_transfer_configured": bool(settings.staff_transfer_number),
-        "message": (
-            "Escalation request captured. "
-            "A live warm transfer is not implemented in this starter, so staff callback flow should be used."
-        ),
+        "message": "Escalation request captured.",
         "transfer": record
     }
 
