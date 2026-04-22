@@ -103,7 +103,7 @@ def _suggest_alternatives(date_value: str, time_value: str) -> list[str]:
 
 def add_to_google_calendar(record: dict) -> None:
     try:
-        from google.oauth2.credentials import Credentials
+        from google.oauth2 import service_account
         from googleapiclient.discovery import build
 
         token_data = os.environ.get('GOOGLE_CALENDAR_TOKEN')
@@ -111,7 +111,7 @@ def add_to_google_calendar(record: dict) -> None:
             print("No GOOGLE_CALENDAR_TOKEN found, skipping Calendar.")
             return
 
-        creds = Credentials.from_authorized_user_info(
+        creds = service_account.Credentials.from_service_account_info(
             json.loads(base64.b64decode(token_data).decode()),
             ['https://www.googleapis.com/auth/calendar']
         )
