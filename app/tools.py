@@ -129,8 +129,8 @@ def add_to_google_calendar(record: dict) -> None:
                 f"Special requests: {record.get('special_requests', 'None')}\n"
                 f"Booked via: AI Voice Agent"
             ),
-            'start': {'dateTime': start_dt.isoformat(), 'timeZone': 'America/Chicago'},
-            'end': {'dateTime': end_dt.isoformat(), 'timeZone': 'America/Chicago'},
+            'start': {'dateTime': start_dt.isoformat(), 'timeZone': 'UTC'},
+            'end': {'dateTime': end_dt.isoformat(), 'timeZone': 'UTC'},
         }
 
         service.events().insert(calendarId='nomanahmadzai33@gmail.com', body=event).execute()
