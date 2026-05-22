@@ -97,7 +97,6 @@ async def media_stream(websocket: WebSocket) -> None:
 
     headers = {
         "Authorization": f"Bearer {settings.openai_api_key}",
-        "OpenAI-Beta": "realtime=v1"
     }
     openai_url = f"{OPENAI_REALTIME_URL}?model={settings.openai_realtime_model}"
 
