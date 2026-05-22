@@ -35,7 +35,7 @@ def build_twiml_stream_response() -> str:
 
 async def initialize_openai_session(openai_ws) -> None:
     session_update = {
-        "type": "realtime",
+        "type": "session.update",
         "session": {
             "instructions": build_system_prompt(),
             "voice": settings.openai_voice,
