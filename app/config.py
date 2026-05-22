@@ -17,7 +17,7 @@ class Settings:
     public_base_url: str = os.getenv("PUBLIC_BASE_URL", "http://localhost:8000")
     staff_transfer_number: str = os.getenv("STAFF_TRANSFER_NUMBER", "")
     restaurant_phone_number: str = os.getenv("RESTAURANT_PHONE_NUMBER", "")
-    openai_realtime_model: str = os.getenv("OPENAI_REALTIME_MODEL", "gpt-realtime-1.5")
+    openai_realtime_model: str = os.getenv("OPENAI_REALTIME_MODEL", "gpt-4o-realtime-preview")
     openai_voice: str = os.getenv("OPENAI_VOICE", "marin")
     reservation_party_limit: int = int(os.getenv("RESERVATION_PARTY_LIMIT", "8"))
     reservation_slot_capacity: int = int(os.getenv("RESERVATION_SLOT_CAPACITY", "6"))
