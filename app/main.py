@@ -37,19 +37,16 @@ async def initialize_openai_session(openai_ws) -> None:
     session_update = {
         "type": "session.update",
         "session": {
-            "type": "realtime",
-            "model": settings.openai_realtime_model,
             "instructions": build_system_prompt(),
-            "output_modalities": ["audio"],
-            "audio": {
-                "input": {
-                    "format": {"type": "audio/pcmu", "rate": 8000},
-                    "turn_detection": {"type": "server_vad"}
-                },
-                "output": {
-                    "format": {"type": "audio/pcmu"},
-                    "voice": settings.openai_voice
-                }
+            "voice": settings.openai_voice,
+            "input_audio_format": "g711_ulaw",
+            "output_audio_format": "g711_ulaw",
+            "modalities": ["text", "audio"],
+            "turn_detection": {
+                "type": "server_vad",
+                "threshold": 0.6,
+                "prefix_padding_ms": 200,
+                "silence_duration_ms": 700
             },
             "tools": TOOLS,
             "tool_choice": "auto"
