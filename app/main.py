@@ -43,11 +43,11 @@ async def initialize_openai_session(openai_ws) -> None:
             "output_modalities": ["audio"],
             "audio": {
                 "input": {
-                    "format": {"type": "audio/g711-ulaw", "rate": 8000},
+                    "format": {"type": "audio/pcmu", "rate": 8000},
                     "turn_detection": {"type": "server_vad"}
                 },
                 "output": {
-                    "format": {"type": "audio/g711-ulaw"},
+                    "format": {"type": "audio/pcmu"},
                     "voice": settings.openai_voice
                 }
             },
