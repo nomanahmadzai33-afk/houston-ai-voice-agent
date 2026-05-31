@@ -39,15 +39,21 @@ async def initialize_openai_session(openai_ws) -> None:
         "session": {
             "type": "realtime",
             "instructions": build_system_prompt(),
-            "voice": settings.openai_voice,
-            "input_audio_format": "g711_ulaw",
-            "output_audio_format": "g711_ulaw",
             "modalities": ["text", "audio"],
-            "turn_detection": {
-                "type": "server_vad",
-                "threshold": 0.6,
-                "prefix_padding_ms": 200,
-                "silence_duration_ms": 700
+            "audio": {
+                "input": {
+                    "format": {"type": "audio/pcmu"},
+                    "turn_detection": {
+                        "type": "server_vad",
+                        "threshold": 0.6,
+                        "prefix_padding_ms": 200,
+                        "silence_duration_ms": 700
+                    }
+                },
+                "output": {
+                    "format": {"type": "audio/pcmu"},
+                    "voice": settings.openai_voice
+                }
             },
             "tools": TOOLS,
             "tool_choice": "auto"
