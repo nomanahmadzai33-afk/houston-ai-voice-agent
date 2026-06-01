@@ -39,14 +39,6 @@ async def initialize_openai_session(openai_ws) -> None:
         "session": {
             "type": "realtime",
             "instructions": build_system_prompt(),
-            "turn_detection": {
-                "type": "server_vad",
-                "threshold": 0.6,
-                "prefix_padding_ms": 200,
-                "silence_duration_ms": 700,
-                "create_response": True,
-                "interrupt_response": True
-            },
             "tools": TOOLS,
             "tool_choice": "auto"
         }
