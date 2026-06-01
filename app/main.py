@@ -39,9 +39,6 @@ async def initialize_openai_session(openai_ws) -> None:
         "session": {
             "type": "realtime",
             "instructions": build_system_prompt(),
-            "input_audio_format": "g711_ulaw",
-            "output_audio_format": "g711_ulaw",
-            "modalities": ["text", "audio"],
             "turn_detection": {
                 "type": "server_vad",
                 "threshold": 0.6,
@@ -51,8 +48,7 @@ async def initialize_openai_session(openai_ws) -> None:
                 "interrupt_response": True
             },
             "tools": TOOLS,
-            "tool_choice": "auto",
-            "max_response_output_tokens": 512
+            "tool_choice": "auto"
         }
     }
     await openai_ws.send(json.dumps(session_update))
