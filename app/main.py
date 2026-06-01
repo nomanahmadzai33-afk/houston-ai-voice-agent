@@ -39,7 +39,6 @@ async def initialize_openai_session(openai_ws) -> None:
         "session": {
             "type": "realtime",
             "instructions": build_system_prompt(),
-            "voice": settings.openai_voice,
             "input_audio_format": "g711_ulaw",
             "output_audio_format": "g711_ulaw",
             "modalities": ["text", "audio"],
